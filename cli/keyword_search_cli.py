@@ -1,24 +1,30 @@
-import argparse
+from parser import *
 from helper import *
 from inverted_index import *
 import sys
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Keyword Search CLI")
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    subparsers.add_parser("build", help="build the inverted index")
-    search_parser = subparsers.add_parser("search", help="Search movies using keywords")
-    search_parser.add_argument("query", type=str, help="Search query")
-    args = parser.parse_args()
-
     match args.command:
         case "search":
             print(f"Searching for {args.query}")
             results = search(args.query)
-            for res, count in enumerate(results):
+            for count, res in enumerate(results):
                 print(f"{count}. {res} {count}")
         case "build":
             build()
+        case "tf":
+            doc_id = args.doc_id
+            term = args.term
+            print(tf(doc_id, term))
+        case "idf":
+            term = args.term
+            idf = idf_what(term)
+            print(f"Inverse document frequency of `{args.term}`: {idf:.2f}")
+        case "tfidf":
+            term = args.term
+            doc_id = args.doc_id
+            tf_idf = tfidfer(term, doc_id)
+            print(f"TF-IDF score of '{args.term}' in document '{args.doc_id}': {tf_idf:.2f}")
         case _:
             parser.print_help()
 

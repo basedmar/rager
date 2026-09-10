@@ -1,6 +1,7 @@
 import string
 import json
 from nltk.stem import PorterStemmer
+
 def get_stop_words(filepath:str) -> list[str]:
     temp = None
     with open (filepath, "r", encoding="utf-8") as file:

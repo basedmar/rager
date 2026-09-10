@@ -1,0 +1,16 @@
+import argparse
+  
+parser = argparse.ArgumentParser(description="Keyword Search CLI")
+subparsers = parser.add_subparsers(dest="command", help="Available commands")
+tfidf = subparsers.add_parser("tfidf", help="return the tfidf of a term")
+tfidf.add_argument("doc_id", type=int)
+tfidf.add_argument("term", type=str)
+subparsers.add_parser("build", help="build the inverted index")
+idf_parser = subparsers.add_parser("idf", help="returns the inverted doc freq")
+idf_parser.add_argument("term", type=str, help="term to check inverted doc freq of")
+tf_parser = subparsers.add_parser("tf", help="term frequency of a token")
+tf_parser.add_argument("doc_id", type=int, help="document id")
+tf_parser.add_argument("term", type=str, help="token to check")
+search_parser = subparsers.add_parser("search", help="Search movies using keywords")
+search_parser.add_argument("query", type=str, help="Search query")
+args = parser.parse_args()
