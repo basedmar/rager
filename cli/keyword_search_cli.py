@@ -1,31 +1,36 @@
 import argparse
 from helper import *
-from nltk.stem import PorterStemmer
+from inverted_index import *
+import sys
+
+def exit():
+    sys.exit()
+
 def main() -> None:
     stemmer = PorterStemmer()
     parser = argparse.ArgumentParser(description="Keyword Search CLI")
     subparsers = parser.add_subparsers(dest="command", help="Available commands")
+    subparsers.add_parser("build", help="build the inverted index")
     search_parser = subparsers.add_parser("search", help="Search movies using keywords")
     search_parser.add_argument("query", type=str, help="Search query")
+    
 
     stop_words = get_stop_words("/home/kkmarmar/rag-search-engine/data/stopwords.txt")
 
     args = parser.parse_args()
     movies = load_mov("/home/kkmarmar/rag-search-engine/data/movies.json")
-    results = []
     count = 0
+    inv_index = InvertedIndex()
+
     match args.command:
         case "search":
             print(f"Searching for {args.query}")
-            args.query = tokenize(args.query)
-            for movie in movies:
-                title = tokenize(movie["title"])
-                if token_match(args.query, title, stop_words, stemmer):
-                    count += 1
-                    results.append(f"{count}. {movie["title"]} {count}\n")
-                if count >= 5:
-                    break
-            print(results)
+            results = search(args.query)
+            for res, count in enumerate(results):
+                print(f"{count}. {res} {count}")
+                
+        case "build":
+            build()
         case _:
             parser.print_help()
 
