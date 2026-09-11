@@ -1,7 +1,16 @@
 import argparse
-  
+from constants import *
 parser = argparse.ArgumentParser(description="Keyword Search CLI")
 subparsers = parser.add_subparsers(dest="command", help="Available commands")
+bm25_search = subparsers.add_parser("bm25search")
+bm25_search.add_argument("term", type=str)
+bm25_tf_parser = subparsers.add_parser("bm25tf", help="returns the tf of a doc using bm25")
+bm25_tf_parser.add_argument("doc_id", type=int)
+bm25_tf_parser.add_argument("term", type=str)
+bm25_tf_parser.add_argument("k1", type=float, nargs="?", default=BM25_K1)
+bm25_tf_parser.add_argument("b", type=float, nargs="?", default=BM25_B)
+bm25_idf_parser = subparsers.add_parser("bm25idf", help="parser for the bm25idf calculation")
+bm25_idf_parser.add_argument("term", type=str)
 tfidf = subparsers.add_parser("tfidf", help="return the tfidf of a term")
 tfidf.add_argument("doc_id", type=int)
 tfidf.add_argument("term", type=str)
