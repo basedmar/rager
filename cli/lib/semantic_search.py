@@ -2,13 +2,16 @@ from sentence_transformers import SentenceTransformer
 import numpy as np
 import os
 import json
+from numpy.typing import NDArray
+from typing import Any
+EmbeddingArray = NDArray[Any]
 
 class SemanticSearch():
-    def __init__(self):
-        self.model = SentenceTransformer("all-MiniLM-L6-v2")        
-        self.embeddings = None
-        self.documents = None
-        self.document_map = {}
+    def __init__(self, model_name: str = "all-MiniLM-L6-v2"):
+        self.model = SentenceTransformer(model_name)        
+        self.embeddings: EmbeddingArray = None
+        self.documents: list[Any] | None = None
+        self.document_map: dict[int, Any] = {}
 
     def build_embedding(self, documents):
         self.documents = documents
@@ -16,7 +19,7 @@ class SemanticSearch():
         for doc in documents:
             self.document_map[doc["id"]] = doc
             mov_strings.append(f"{doc["title"]}: {doc["description"]}")
-        self.embeddings = self.model.encode(mov_strings)
+        self.embeddings = self.model.encode(mov_strings, show_progress_bar=True)
         os.makedirs("./cache", exist_ok=True)
         with open("./cache/movie_embeddings.npy", "wb") as file:
             np.save(file, self.embeddings)
@@ -36,12 +39,13 @@ class SemanticSearch():
     def generate_embedding(self, text):
         if not text or not text.strip():
             raise ValueError("provided text is empty or is only whitespace")
-        encoded = self.model.encode([text], show_progress_bar=True)
-        return encoded[0]
+        return self.model.encode([text])[0]
 
     def search(self, query, limit):
-        if len(self.embeddings) == 0:
+        if self.embeddings is None or self.embeddings.size == 0:
             raise ValueError("No embeddings loaded. Call `load_or_create_embeddings` first.")
+        if self.documents is None or len(self.documents) == 0:
+            raise ValueError("No documents loaded. Call `load_or_create_embeddings` first.")
         embed_query = self.generate_embedding(query)
         search_results = []
         for index, movie in enumerate(self.embeddings):
